@@ -2,6 +2,9 @@
 
 Here are files related to the poster generation system for Cinemagic. There's a fair amount going on here.
 
+> Please note that the code in both of these locations represents an evolution over approximately two years of constant development, with both changing design and the necessity (given that we were a startup) of always needing to be able to demo. Also, both the tutorial system and the poster generation systems were some of the more complex aspects of the game. If I were to do it again, I would definitely break up the functionality more that is seen here, but much of that additional functionality was added as we went (and as we refined the game design).
+
+
 ## CharacterSprite.hx
 
 This implements everything needed to render a given person, which can be a character (only), an actor (only), or the combination of an actor and a character. This mainly means layering specific images on top of each other, but the way skin tone is handled is a bit more involved.

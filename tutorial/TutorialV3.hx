@@ -31,7 +31,12 @@ import com.jamwix.utils.JWUtils;
 
 /*
 	We iterated a lot on the tutorial, and wanted to be able to swap back and forth between implementations,
-	hence the separate files
+	hence the separate files.
+
+	You'll also notice that this is just a large number of static functions, each one of which does various things.
+	Tutorial systems have to be "messy" to a certain degree, since you're constantly breaking the game's
+	normal functionality. Implementing arbitrary functions here is one of the ways that such breakages were
+	contained.
 */
 class TutorialV3
 {
@@ -1089,7 +1094,7 @@ class TutorialV3
 	static public function addCards_s0():Void
 	{
 		// put 5 cards into the hand
-		// 40: arcehologist
+		// 40: archeologist
 		// 42: assassination plot
 		// 57: boxing match
 		// 62: business tycoon

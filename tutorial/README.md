@@ -2,6 +2,8 @@
 
 These files are from the tutorial system I built for the game. We needed it to be flexible and easily altered, but also to be able to trigger anything that can happen in the game.
 
+> Please note that the code here represents an evolution over approximately two years of constant development, with both changing design and the necessity (given that we were a startup) of always needing to be able to demo. Also, both the tutorial system and the poster generation systems were some of the more complex aspects of the game. If I were to do it again, I would definitely break up the functionality more that is seen here, but much of that additional functionality was added as we went (and as we refined the game design).
+
 The tutorial is made up of TutorialStepData (in TutorialStepData.hx), with each such instance representing a single step along the tutorial. TutorialStepData instances have optional start and end functions (triggered upon entry/exit of that state), and optional start/end text (displayed in a popup), but they all have criteria that determine when the player has successfully completed that part of the tutorial.
 
 Criteria are defined via TutorialStepCriteria instances (also in TutorialStepData.hx). Each such instace is defined by three things:

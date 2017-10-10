@@ -1,6 +1,8 @@
 package com.jamwix.hs.tutorial;
 
-
+/*
+*	This file contains random hints that are presented to the player while the game loads.
+*/
 class LoadingTips
 {
 	static public var LOADING_TIPS:Array<String> = [
