@@ -1,4 +1,4 @@
-#Tutorial
+# Tutorial
 
 These files are from the tutorial system I built for the game. We needed it to be flexible and easily altered, but also to be able to trigger anything that can happen in the game.
 
