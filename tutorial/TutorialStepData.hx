@@ -3,7 +3,7 @@ package com.jamwix.hs.tutorial;
 import com.jamwix.hs.ui.popups.PopupDoc;
 import com.jamwix.utils.IntPoint;
 
-// holds a single criteria for a tutorial step, such as "matched >= 3 gems" or "clicked on something"
+// Holds a single criteria for a tutorial step, such as "matched >= 3 gems" or "clicked on something"
 class TutorialStepCriteria 
 {
 	static public var REL_GTE:Int = 0;
@@ -12,9 +12,10 @@ class TutorialStepCriteria
 	static public var REL_LT:Int = 3;
 	static public var REL_EQUAL:Int = 4;
 
-	public var criteriaType:Int;
-	public var criteriaArg:Int;
-	public var criteriaRel:Int;
+	public var criteriaType:Int;	// the type of criteria. Mandatory
+	public var criteriaArg:Int;		// (optional) additional argument to the criteria, such as card ID or gem type
+	public var criteriaRel:Int;		// the relationship that needs to exist between the current value and the argument
+									// for this criteria to have been met
 
 	public function new(data:Array<Int>)
 	{
@@ -34,11 +35,11 @@ class TutorialStepCriteria
 // holds all of the information for a given tutorial step
 class TutorialStepData
 {
-	private var _startFunc:Void->Void;
-	private var _endFunc:Void->Void;
-	private var _preText:String;
-	private var _postText:String;
-	private var _criteria:Array<TutorialStepCriteria>;
+	private var _startFunc:Void->Void;	// (optional) function to run at start of step
+	private var _endFunc:Void->Void;	// (optional) function to run at end of step
+	private var _preText:String;		// (optional) text to display at start
+	private var _postText:String;		// (optional) text to display at end
+	private var _criteria:Array<TutorialStepCriteria>;	// the criteria that defines what's needed to move to the next step
 	private var _pointAt:IntPoint;
 
 	public var stage:Int;
@@ -84,6 +85,8 @@ class TutorialStepData
 
 	}
 
+	// Check all the criteria for this step and return false if any of them
+	// are not yet met.
 	public function isComplete(currCriteria:Map<Int, Int>):Bool
 	{
 		var currVal:Int;
@@ -93,28 +96,19 @@ class TutorialStepData
 		{
 			return false;
 		}
-		// trace(currCriteria);
-		// trace('CHECKING TUTORIAL CRITERIA');
 		for (i in 0..._criteria.length)
 		{	
-			// trace('CRITERIA ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-
 			// check to make sure the criteria has been set
 			if (currCriteria.exists(_criteria[i].criteriaType) == false)
 			{
-				// trace('FALSE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-				// trace('CRIT NOT FOUND');
 				return false;
 			}
 
 			// if a criteria with an argument, check it too
 			if (_criteria[i].criteriaArg != -1 && _criteria[i].criteriaRel != -1)
 			{
-
 				currVal = currCriteria.get(_criteria[i].criteriaType);
 				cmpVal = _criteria[i].criteriaArg;
-
-				// trace('t:' + _criteria[i].criteriaType + ' curr:' + currVal + ' cmp:' + cmpVal);
 
 				switch (_criteria[i].criteriaRel)
 				{
@@ -122,8 +116,6 @@ class TutorialStepData
 					{
 						if (currVal != cmpVal)
 						{
-							// trace('FALSE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-
 							return false;
 						}
 					}
@@ -131,8 +123,6 @@ class TutorialStepData
 					{
 						if (currVal < cmpVal)
 						{
-							// trace('FALSE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-
 							return false;
 						}
 					}
@@ -140,8 +130,6 @@ class TutorialStepData
 					{
 						if (currVal <= cmpVal)
 						{
-							// trace('FALSE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-
 							return false;
 						}
 					}
@@ -149,8 +137,6 @@ class TutorialStepData
 					{
 						if (currVal > cmpVal)
 						{
-							// trace('FALSE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-
 							return false;
 						}
 					}
@@ -158,18 +144,12 @@ class TutorialStepData
 					{
 						if (currVal >= cmpVal)
 						{
-							// trace('FALSE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-
 							return false;
 						}
 					}
 				}
-			}
-			
-			// trace('TRUE ' + _criteria[i].criteriaType + ' ' + _criteria[i].criteriaArg + ' ' + _criteria[i].criteriaRel);
-		
+			}		
 		}
-
 		
 		// made it through everything w/out failing, all criteria have been met
 		trace('CRIT PASSED');
@@ -187,31 +167,15 @@ class TutorialStepData
 		// make sure that the doc popup doesn't hide the arrow
 		var corner:Int = PopupDoc.CORNER_BOTRIGHT;
 
-		/*
-		if (_pointAt != null)
-		{
-			// TODO: show an arrow pointing to the specific position
-			GameRegistry.popups.showArrowAt(_pointAt);
-		
-			if (_pointAt.y > (Globals.HEIGHT * 0.75))
-			{
-				corner = PopupDoc.CORNER_TOPRIGHT;
-			}
-		}
-		*/
-
 		if (_preText != null && _preText != '')
 		{
 			trace('ADDING DOC POPUP _preText ' + _preText);
 			GameRegistry.popups.addDocPopup(_preText, corner, true, 40);
 		}
-
-
 	}
 
 	public function end():Void
 	{
-		trace('ENDING : ' + stage + ',' + step);
 		if (_endFunc != null)
 		{
 			_endFunc();

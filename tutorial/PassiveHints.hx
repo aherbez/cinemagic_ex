@@ -4,6 +4,10 @@ import com.jamwix.hs.tutorial.TutorialManager;
 import com.jamwix.hs.levels.Level;
 import com.jamwix.hs.ui.popups.PopupDocPassive;
 
+/*
+*	This implements hints that are only loosly tied to a given tutorial step
+*/
+
 class PassiveHints
 {
 
@@ -135,39 +139,4 @@ class PassiveHints
 			GameRegistry.popups.addPassiveDocPopup(GEM_MESSAGES[index]);
 		}
 	}
-
-	/*
-	// possibly show a passive doc popup
-	public function checkForTips():Void
-	{
-		if (!hintShown(HINT_DRAG_BITS))
-		{
-			// If 10+ turns have passed, a Cinebit is active and none have been added	Drag cinebits to the filmstrip & build your movie!
-			if (GameRegistry.game.getTurnsTaken >= 10 && 	// 10+ turns have passed
-				GameRegistry.hand != null && 				// a Cinebit is active
-				GameRegistry.hand.numCardsPlayable() >= 1 &&
-				GameRegistry.game.posterDat != null &&
-				GameRegistry.game.posterDat.getNumCards() < 1)
-			{
-				GameRegistry.popups.addPassiveDocPopup('Drag cinebits to the filmstrip & build your movie!');
-				_hintsShown.set(HINT_DRAG_BITS, true);
-				return;
-			}
-		}
-
-		// First Cinebit made active by gem collection
-		if (!hintShown(HINT_CINEBIT_ACTIVE))
-		{
-			if (GameRegistry.hand != null &&
-				GameRegistry.hand.numCardsPlayable() >= 1)
-			{
-
-				GameRegistry.popups.addPassiveDocPopup('Now you can add Cinebits to your movie!');
-				_hintsShown.set(HINT_CINEBIT_ACTIVE, true);
-				return;
-			}
-		}
-	}
-	*/
-
 }

@@ -21,6 +21,9 @@ import com.jamwix.hs.cards.CardData;
 /**
  * ...
  * @author Adrian Herbez
+ * 
+ * This implements everything needed to render a given character, actor, or character/actor combo, 
+ * and to update it as cards are added
  */
 class CharacterSprite extends JamSprite
 {
@@ -34,10 +37,10 @@ class CharacterSprite extends JamSprite
 	// art and position data for the default male/female bodies
 	static private var DEFAULT_MALE_FX:String = '{"skin_c":"#efc2ba","regis": [336,94],"pos_h":[-23,-57],"pos_h":[-23,-57],"pos_h":[-23,-57],"skin":1,"pos_cloth":[-169,51],"pos_skin":[-103,3]}';
 	static private var DEFAULT_FEMALE_FX:String = '{"skin_c":"#efc4ba","regis": [339,105],"pos_h":[-24,-55],"pos_h":[-24,-55],"pos_h":[-24,-55],"skin":1,"pos_cloth":[-111,54],"pos_skin":[-96,-2]}';
+	// combined default male/female data, so that it's in the same form as other character data
+	static private var DEFAULT_FX:String = '{"uni":0,"artdat":[' + DEFAULT_MALE_FX + ',' + DEFAULT_FEMALE_FX + ']}';
 
 	static private var DEFAULT_ACTOR_PREFIX:String = 'stock';
-
-	static private var DEFAULT_FX:String = '{"uni":0,"artdat":[' + DEFAULT_MALE_FX + ',' + DEFAULT_FEMALE_FX + ']}';
 
 	static private var DEFAULT_DATA:Dynamic = null;
 
@@ -74,7 +77,6 @@ class CharacterSprite extends JamSprite
 	private var _doOffset:Bool = false;
 	public var coffset:Point;
 
-	// public function new(char_prefix:String, actor:String, skin:Int)
 	public function new(?cd:CardData, ?charNum:Int = 0, ?doOffset:Bool = false, ?isFemale:Bool = false, ?bmdMap:Map<String, BitmapData>)
 	{
 		super();
@@ -98,28 +100,17 @@ class CharacterSprite extends JamSprite
 
 		if (cd != null)
 		{
-
 			dataStr = cd.effects;
 			_default = false;
 			_charName = cd.imgSrc;
 
 			var dat:Dynamic = Json.parse(dataStr);
-			// trace(dat);
 			if (dat.uni != null && dat.uni == 0)
 			{
 				if (dat.defgen != null)
 				{
 					_gender = dat.defgen;
 				}
-
-				// TODO: would be cool to have gender randomized, but it needs to be consistent across display for any given card
-				/*
-				// commenting this out for now
-				if (cd.cardType == CardData.TYPE_CHARACTER)
-				{
-					_gender = GameRegistry.cards.getGender(cd.ID);
-				}
-				*/
 			}
 
 			if (dat.hat != null && dat.hat == 1)
@@ -127,35 +118,12 @@ class CharacterSprite extends JamSprite
 				_hasHat = true;
 			}
 		}
-		/*
-		else
-		{
-			dataStr = DEFAULT_FX;
-			_charName = 'default';
-		}
-		*/
 
 		_artData = Json.parse(dataStr);
 
 		if (isFemale) _gender = 1;
 		coffset = new Point(0, 0);
 		setupArt(bmdMap);
-
-		// FIXME: remove this, as it's a hacky, quick way to position characters (should really come from plot cards)
-
-		/*
-		if (charNum == 0)
-		{
-			// position character so that the head is towards the left
-			this.x = -_head.x + 50;
-		}
-		else
-		{
-			// position character so that the head is towards the right
-			this.x = Poster.POSTER_WIDTH + _head.x - 50;
-			this.scaleX = -1;
-		}
-		*/
 	}
 
 	private function setupArt(bmdMap:Map<String, BitmapData> = null):Void
@@ -165,7 +133,6 @@ class CharacterSprite extends JamSprite
 			this.removeChildAt(0);
 		}
 
-		// var data:Dynamic = Json.parse(dataStr);
 		var data:Dynamic;
 		var defaultData = DEFAULT_DATA.artdat[_gender];
 		var name:String;
@@ -193,6 +160,8 @@ class CharacterSprite extends JamSprite
 			defName += SUFFIX_FEMALE;
 		}
 
+		// some characters use the same art for both males and females
+		// "uni" is short for "universal"
 		if (_artData.uni == null || _artData.uni == 1)
 		{
 			name = _charName;
@@ -215,7 +184,6 @@ class CharacterSprite extends JamSprite
 
 		var headPath:String = ASSET_BASE + 'chr_head_' + name + '.png';
 		var defHeadPath:String = ASSET_BASE + 'chr_head_' + defName + '.png';
-		// trace("OPENING HEAD: " + headPath);
 		if (bmdMap != null && bmdMap.exists(headPath))
 		{
 			_headImg = new ImgSprite(headPath, defHeadPath, false, bmdMap.get(headPath));
@@ -225,25 +193,22 @@ class CharacterSprite extends JamSprite
 			_headImg = new ImgSprite(headPath, defHeadPath);
 		}
 		_head.addChild(_headImg);
-/*
-		_headPos = new Array<Int>();
-		_headPos[0] = data.pos_h[0];
-		_headPos[1] = data.pos_h[1];
-*/
 		_skin = new Sprite();
 		addChild(_skin);
 
+		// some characters have no visible skin
 		_showSkin = false;
 		if (data.skin == 1) _showSkin = true;
 
+		// setup skin as the lowest layer
 		if (_showSkin)
 		{
+			// grab the base skin tone
 			_skinTone = Std.parseInt('0x' + data.skin_c.substr(1,6));
 
 			var skinPath:String = ASSET_BASE + 'chr_skin_' + name + '.jpg';
 			var defSkinPath:String =
 				ASSET_BASE + 'chr_skin_' + defName + '.jpg';
-			// trace("OPENING SKIN: " + skinPath);
 			if (bmdMap != null && bmdMap.exists(skinPath))
 			{
 				_bmd = bmdMap.get(skinPath);
@@ -281,37 +246,12 @@ class CharacterSprite extends JamSprite
 
 			if (_skin.x < coffset.x) coffset.x = _skin.x;
 			if (_skin.y < coffset.y) coffset.y = _skin.y;
-
-			/*
-			if (data.pos_skin != null)
-			{
-				_shadowsBM.x = data.pos_skin[0];
-				_shadowsBM.y = data.pos_skin[1];
-			}
-			else
-			{
-				_shadowsBM.x = defaultData.pos_skin[0];
-				_shadowsBM.y = defaultData.pos_skin[1];
-			}
-
-
-			if (data.pos_skin != null)
-			{
-				_highlightsBM.x = data.pos_skin[0];
-				_highlightsBM.y = data.pos_skin[1];
-			}
-			else
-			{
-				_highlightsBM.x = defaultData.pos_skin[0];
-				_highlightsBM.y = defaultData.pos_skin[1];
-			}
-			*/
-			// addChild(_highlightsBM);
 		}
 
+		// next-lowest layer after skin is the clothing
 		var clothPath:String = ASSET_BASE + 'chr_cloth_' + name + '.png';
 		var defClothPath:String = ASSET_BASE + 'chr_cloth_' + defName + '.png';
-		// trace("OPENING CLOTH: " + clothPath);
+
 		if (bmdMap != null && bmdMap.exists(clothPath))
 		{
 			_clothing = new ImgSprite(clothPath, defClothPath, false, bmdMap.get(clothPath));
@@ -337,8 +277,12 @@ class CharacterSprite extends JamSprite
 		if (_clothing.y < coffset.y) coffset.y = _clothing.y;
 
 		addChild(_clothing);
+
+		// once we've added skin and clothing, add the head on top
 		addChild(_head);
 
+		// some characters have additional "accessories" that go on top of everything else so far
+		// (things like glasses, for example)
 		_hasAccessories = false;
 		if (data.accessories == 1) _hasAccessories = true;
 
@@ -347,7 +291,6 @@ class CharacterSprite extends JamSprite
 			var accPath:String = ASSET_BASE + 'chr_access_' + name + '.png';
 			var defAccPath:String =
 				ASSET_BASE + 'chr_access_' + defName + '.png';
-			// trace("OPENING ACCESSORIES: " + accPath);
 
 			if (bmdMap != null && bmdMap.exists(accPath))
 			{
@@ -375,6 +318,7 @@ class CharacterSprite extends JamSprite
 			addChild(_accessories);
 		}
 
+		// some characters have hats
 		if (data.hat != null && data.hat == 1)
 		{
 			_hasHat = true;
@@ -415,13 +359,6 @@ class CharacterSprite extends JamSprite
 			if (_hatImg != null) _hatImg.x += coffset.x * -1;
 			if (_hatImg != null) _hatImg.y += coffset.y * -1;
 		}
-
-		/*
-		_debug = new Sprite();
-		_debug.graphics.beginFill(0xff0000, 1);
-		_debug.graphics.drawCircle(0, 0, 10);
-		addChild(_debug);
-		*/
 	}
 
 	public function setActor(cd:CardData, bmdMap:Map<String, BitmapData> = null):Void
@@ -429,20 +366,17 @@ class CharacterSprite extends JamSprite
 		// if actor gender != current gender && unisex == 0
 		if (_artData.uni != null && _artData.uni == 0)
 		{
-			// var isFemale:Bool = cd.hasAttribute(CardData.ATT_FEMALE);
 			var newGender:Int = cd.hasAttribute(Attributes.ATT_FEMALE) ? 1 : 0;
 
 			if (_gender != newGender)
 			{
-				// swap out all the art
 				_gender = newGender;
 				setupArt();
 			}
 		}
 
 		var data:Dynamic = Json.parse(cd.effects);
-		// trace(cd.cardName + ': DATA: ');
-		// trace(data);
+		// grab the value for the skin tone from the actor's metadata
 		if (_showSkin)
 		{
 			if (data.skin != null)
@@ -478,6 +412,11 @@ class CharacterSprite extends JamSprite
 		}
 		_head.addChild(_headImg);
 
+		// the need for separate hair images stems from poblems with
+		// actors (mainly actresses) with long / big hair styles. For such actors,
+		// the visible hair is actually a combination of the base head image and an
+		// additional hair image. When combining the actor with a character who is wearing a hat,
+		// we leave off the additional hair image so that it appears covered by the hat.
 		if (data.hair != null && data.hair == 1)
 		{
 			// add hair, unless the character has a hat
@@ -559,32 +498,21 @@ class CharacterSprite extends JamSprite
 			_skin.removeChild(_highlightsBM);
 		}
 
-		/*
-		123456
-
-		r = floor(123456 / 3456)
-		g = 123456 - (r * 12) // 3456
-		g = floor(3456 / 56)
-		b = 123456 % 56
-		*/
-
-		// make colors from _skinTone
-		// highlights: lighter
-
+		// extract individual R, G, and B values from the _skinTone
 		var red:Int = (_skinTone >> 16) & 0xFF;
 		var green:Int = (_skinTone >> 8) & 0xFF;
 		var blue:Int = _skinTone & 0xFF;
 
+		// create a darker version to use as shadows
 		var shadowColor = (Std.int(red * 0.5) << 16) + (Std.int(green * 0.5) << 8) + (Std.int(blue * 0.5));
 
+		// creat a lighter color to use as highlights
 		red = Std.int(Math.min(Std.int(red * 1.5), 255));
 		green = Std.int(Math.min(Std.int(green * 1.5), 255));
 		blue = Std.int(Math.min(Std.int(blue * 1.5), 255));
-
 		var highlightColor = (red << 16) + (green << 8) + blue;
-		// highlightColor = 0xFFFFFF;
-		// shadows: darker
-
+	
+		// create the actual shadow layer
 		var shadingBmd:BitmapData = new BitmapData(_bmd.width, _bmd.height, true);
 		#if neko
 		shadingBmd.fillRect(new Rectangle(0, 0, _bmd.width, _bmd.height), {a: 0xFF, rgb: shadowColor});
@@ -597,7 +525,7 @@ class CharacterSprite extends JamSprite
 		_shadowsBM.blendMode = BlendMode.MULTIPLY;
 		_shadowsBM.alpha = 0.7;
 
-
+		// create the highlights layer
 		var highlightBmd:BitmapData = new BitmapData(_bmd.width, _bmd.height, true);
 		#if neko
 		highlightBmd.fillRect(new Rectangle(0, 0, _bmd.width, _bmd.height), {a: 0xFF, rgb: highlightColor});
@@ -643,23 +571,19 @@ class CharacterSprite extends JamSprite
 		if (_hatImg != null) _hatImg.dispose();
 		if (_skinBM != null)
 		{
-			//_skinBM.bitmapData.dispose();
 			_skinBM.bitmapData = null;
 		}
 
 		if (_shadowsBM != null)
 		{
-			//_shadowsBM.bitmapData.dispose();
 			_shadowsBM.bitmapData = null;
 		}
 
 		if (_highlightsBM != null)
 		{
-			//_highlightsBM.bitmapData.dispose();
 			_highlightsBM.bitmapData = null;
 		}
 
-		//if (_bmd != null) _bmd.dispose();
 		if (_skinBmd != null) _skinBmd.dispose();
 
 		_headImg = null;

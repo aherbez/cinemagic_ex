@@ -29,9 +29,12 @@ import com.jamwix.hs.states.StateCardManager;
 import com.jamwix.utils.IntPoint;
 import com.jamwix.utils.JWUtils;
 
+/*
+	We iterated a lot on the tutorial, and wanted to be able to swap back and forth between implementations,
+	hence the separate files
+*/
 class TutorialV3
 {
-
 	static public function allowMatch():Void
 	{
 		var spg:StatePlayGame = GameRegistry.game.statePlayGame();
@@ -54,8 +57,6 @@ class TutorialV3
 			spg.setMatchEnabled(false);
 		}
 
-		// TutorialSteps.disableMatch();
-
 		var msg:String = 'By doing a combo, you’ve made a special TAP GEM! Touch these to blast monsters off your board and out of your movie!';
 		GameRegistry.popups.addDocPopup(msg, PopupDoc.CORNER_BOTRIGHT, false, 40);
 	}
@@ -68,16 +69,6 @@ class TutorialV3
 		if (spg != null)
 		{
 			spg.setAllowedMatch([[4,1],[4,2]], -1, true);
-
-			/*
-		var matchPos:Point = GameRegistry.ui.getMatchGamePos();
-		var start:IntPoint = new IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 4.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 1.5)));
-		var end:IntPoint = new 	IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 4.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 2.5)));
-
-		GameRegistry.popups.animatePointer(start, end);
-			*/
 		}
 
 		var msg:String = 'Try making a match-four combo!';
@@ -90,18 +81,6 @@ class TutorialV3
 		var spg:StatePlayGame = GameRegistry.game.statePlayGame();
 		if (spg != null)
 		{
-
-			/*
-			spg.tutorialSetBoard([
-				[3,5,4,2,3,4,3,1],
-				[5,1,4,B,2,B,3,4],
-				[5,0,2,2,5,2,1,1],
-				[2,1,4,1,B,1,3,0],
-				[1,2,1,2,4,0,1,3],
-				[4,1,3,2,2,1,2,0]]
-			);
-			*/
-
 			spg.tutorialSetBoard([
 				[3,5,0,2,3,1,0,1],
 				[5,3,4,1,2,0,4,2],
@@ -150,8 +129,6 @@ class TutorialV3
 		if (scm != null)
 		{
 			// scm.tutorialShowCard(TutorialManager.EXAMPLE_CARD_UPGRADE_CARD_ID);
-
-
 		}
 	}
 
@@ -162,15 +139,11 @@ class TutorialV3
 		if (scm != null)
 		{
 			// scm.tutorialShowCard(TutorialManager.EXAMPLE_CARD_UPGRADE_CARD_ID);
-
 			var pos:IntPoint = new IntPoint(0, 0);
 			pos.x = Std.int(Globals.WIDTH/2) + Globals.UIInt(218);
 			pos.y = Std.int(Globals.HEIGHT/2) + Globals.UIInt(422);
 
 			GameRegistry.popups.showArrowAt(pos, PopupArrow.TOPLEFT);
-
-			// var msg:String = 'Tap to upgrade!';
-			// GameRegistry.popups.addDocPopup(msg, PopupDoc.CORNER_TOPRIGHT, false);
 		}
 	}
 
@@ -256,7 +229,6 @@ class TutorialV3
 
 	static public function promptUseMagnet():Void
 	{
-
 		var spg:StatePlayGame = GameRegistry.game.statePlayGame();
 		if (spg != null)
 		{
@@ -367,17 +339,6 @@ class TutorialV3
 		var spg:StatePlayGame = GameRegistry.game.statePlayGame();
 		spg.tutorialShowMatch([[4,2],[4,3]]);
 
-		/*
-		var matchPos:Point = GameRegistry.ui.getMatchGamePos();
-		var start:IntPoint = new IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 4.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 2.5)));
-		var end:IntPoint = new 	IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 4.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)));
-
-		GameRegistry.popups.animatePointer(start, end);
-
-		*/
-		// turn off lock preventing houses from being matched
 		GameRegistry.resources.preventGemCredit(-1);
 
 
@@ -423,15 +384,6 @@ class TutorialV3
 			spg.tutorialShowMatch([[3,1],[3,2]]);
 		}
 
-		/*
-		var matchPos:Point = GameRegistry.ui.getMatchGamePos();
-		var start:IntPoint = new IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 1.5)));
-		var end:IntPoint = new 	IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 2.5)));
-
-		GameRegistry.popups.animatePointer(start, end);
-		*/
 		// turn off lock preventing houses from being matched
 		GameRegistry.resources.preventGemCredit(-1);
 
@@ -596,17 +548,6 @@ class TutorialV3
 		seRect.x += filmStrip.x;
 		seRect.y += filmStrip.y;
 
-		/*
-		var cardPos:IntPoint =
-			handDisplay.getCardPositionByID(TutorialManager.REPLACE_DRAW_CHARACTER);
-		var r1:Rectangle = new Rectangle();
-		r1.x = cardPos.x - Globals.UIInt(Card.CARD_WIDTH) / 2 - Globals.UIInt(4);
-		r1.y = cardPos.y - Globals.UIInt(Card.CARD_HEIGHT) / 2;
-		r1.width = Globals.UIInt(Card.CARD_WIDTH) + Globals.UIInt(8);
-		r1.height = Globals.UIInt(Card.CARD_HEIGHT);
-		trace("RECT: " + r1.x + " " + r1.y + " " + r1.width + " " + r1.height);
-		*/
-
 		var r1:Rectangle = new Rectangle();
 		if (GameRegistry.hand != null)
 		{
@@ -671,15 +612,6 @@ class TutorialV3
 			spg.setAllowedMatch([[match[0].x, match[0].y],
 								[match[1].x, match[1].y]], 5, true);
 
-			/*
-			var matchPos:Point = GameRegistry.ui.getMatchGamePos();
-			var start:IntPoint = new IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * (match[0].x + 0.5) )),
-															Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * (match[0].y + 0.5))));
-			var end:IntPoint = new 	IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * (match[1].x + 0.5))),
-															Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * (match[1].y + 0.5))));
-
-			GameRegistry.popups.animatePointer(start, end);
-			*/
 		}
 
 		GameRegistry.deck.tutorialSetNextDraw(TutorialManager.REPLACE_DRAW_CHARACTER);
@@ -722,16 +654,9 @@ class TutorialV3
 		{
 			// TODO: disallow any film strip element other than the first
 			spg.tutorialLockFilmstripSlot(1);
-			// TutorialSteps.disableMatch();
 
 			spg.tutorialLockRating(-1, false);
 		}
-
-		/*
-		var handPos:Point = GameRegistry.ui.getHandDisplayPos();
-		var start:IntPoint = new IntPoint(Std.int(handPos.x + (Card.CARD_WIDTH * 1.5)),
-														Std.int(handPos.y + (Globals.UIInt(Card.CARD_HEIGHT) * 0.25)));
-		*/
 
 		var start:IntPoint = GameRegistry.hand.getCardPositionByID(TutorialManager.REPLACE_DRAW_ACTOR);
 
@@ -748,7 +673,6 @@ class TutorialV3
 		var msg:String = 'Now drag ' + cd.cardName + ' onto Carry to replace him.';
 		GameRegistry.popups.addDocPopup(msg, PopupDoc.CORNER_BOTRIGHT, false, 44);
 
-		// loadRatingHighlight();
 	}
 
 	public static function loadSwapActorHighlight():Void
@@ -760,15 +684,6 @@ class TutorialV3
 	{
 		var handPos:Point = GameRegistry.ui.getHandDisplayPos();
 		var filmPos:Point = GameRegistry.ui.getFilmStripPosition();
-
-		/*
-		var r1:Rectangle = new Rectangle();
-		r1.x = handPos.x;
-		r1.y = handPos.y;
-		r1.width = Globals.UIInt(Card.CARD_WIDTH);
-		r1.height = Globals.UIInt(Card.CARD_HEIGHT);
-		*/
-
 
 		var r1:Rectangle = new Rectangle();
 		if (GameRegistry.hand != null)
@@ -844,25 +759,6 @@ class TutorialV3
 
 	}
 
-	/*
-	// DEPRECATED
-	static public function showActorDraw_s1():Void
-	{
-		var matchPos:Point = GameRegistry.ui.getMatchGamePos();
-		var start:IntPoint = new IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 1.5)));
-		var end:IntPoint = new 	IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)),
-														Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 2.5)));
-
-		// turn off lock preventing houses from being matched
-		GameRegistry.resources.preventGemCredit(-1);
-
-		GameRegistry.popups.animatePointer(start, end);
-
-		TutorialSteps.enableMatch();
-	}
-	*/
-
 	static public function setupActorDraw_s1():Void
 	{
 		var spg:StatePlayGame = GameRegistry.game.statePlayGame();
@@ -874,32 +770,6 @@ class TutorialV3
 			spg.tutorialLimitInfo(-1);
 
 			spg.setAllowedMatch([[3,1],[3,2]], 5, true);
-
-			/*
-			var matchPos:Point = GameRegistry.ui.getMatchGamePos();
-
-			var start:IntPoint = new IntPoint(matchPos.x, matchPos.y);
-			var end:IntPoint = new IntPoint(matchPos.x, matchPos.y);
-
-			var mg:MatchGame = spg.getMatchGame();
-
-			if (mg != null)
-			{
-				var cent:Dynamic = mg.gemCenter(3, 1);
-				start.x = Std.int(start.x + cent.x);
-				start.y = Std.int(start.y + cent.y);
-
-				cent = mg.gemCenter(3, 2);
-				end.x = Std.int(end.x + cent.x);
-				end.y = Std.int(end.y + cent.y);
-			}
-			*/
-			/*
-			var start:IntPoint = new IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)),
-															Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 1.5)));
-			var end:IntPoint = new 	IntPoint(Std.int(matchPos.x + (Globals.UIInt(Gem.GEM_SIZE) * 3.5)),
-															Std.int(matchPos.y + (Globals.UIInt(Gem.GEM_SIZE) * 2.5)));
-			*/
 
 			// turn off lock preventing houses from being matched
 			GameRegistry.resources.preventGemCredit(-1);
@@ -938,7 +808,6 @@ class TutorialV3
 		{
 			genreX = Globals.UIInt(952);
 		}
-		// GameRegistry.popups.highlightRegions(genreMistmatchRects());
 
 		// arrow at genre label
 		var arrowX:Int = Std.int(filmPos.x + Globals.UIInt(FilmStrip.filmStripWidth) * 0.55);
@@ -1007,17 +876,6 @@ class TutorialV3
 				spg.tutorialAddCardToFilmstrip(cd);
 
 			}
-
-			/*
-			cd = GameRegistry.cards.getCardByID(TutorialManager.LEVEL2_DRAW_ACTOR);
-			spg.tutorialAddToHand(cd);
-			*/
-
-			// cd = GameRegistry.cards.getCardByID(TutorialManager.LEVEL2_DRAW_CHARACTER);
-			// spg.tutorialAddToHand(cd);
-
-			// cd = GameRegistry.cards.getCardByID(TutorialManager.LEVEL2_DRAW_PLOT);
-			// spg.tutorialAddToHand(cd);
 
 			spg.tutorialSetCinemeter(3);
 

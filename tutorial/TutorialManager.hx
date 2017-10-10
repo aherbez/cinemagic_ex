@@ -28,9 +28,6 @@ class TutorialManager
 	// added to the hand midway through the level
 	static public var FIRST_LEVEL_ADD_CARDS:Array<Int> = [186, 221, 280, 245];
 
-	// static public var FIRST_LEVEL_ACTOR_ID:Int = 340;
-	// static public var FIRST_LEVEL_LOCATION_ID:Int = 4; // 26;
-
 	// 208: Slim Carrey
 	// 223: Terrorist Madman
 	// 9: A Doomed 747
@@ -55,6 +52,7 @@ class TutorialManager
 
 	static public var CORE_TUTORIAL_END_STAGE:Int = 4;
 
+	// lots and lots of different criteria values
 	static public var CRIT_ADD:Int = 0;
 	static public var CRIT_SUB:Int = 1;
 	static public var CRIT_REPLACE:Int = 2;
@@ -123,6 +121,8 @@ class TutorialManager
 
 	static public var CRIT_FORCE_STOP:Int 			= 1000;	// used when working on the tutorial to ensure that a stage cannot be completed
 
+	// IDs for various capabilities, used to prevent the player from having access to 
+	// aspects of the game that they shouldn't (yet)
 	static public var CAP_DISCARD_CARDS:Int  		= 0;	// if the player is allowed to discard cards
 	static public var CAP_SHOW_FX_MENU:Int 			= 1;	// if the FX menu is displayed / active
 	static public var CAP_COUNTDOWN_TURNS:Int 		= 2;	// whether or not the level is timed
@@ -236,8 +236,6 @@ class TutorialManager
 
 		if (Globals.TUTORIAL_DISABLED)
 		{
-			// _currentStageNum = _tutorialData.length - 1;
-			// _currentStep =
 			_tutorialComplete = true;
 		}
 
@@ -293,6 +291,10 @@ class TutorialManager
 		setTutorialComplete();
 	}
 
+	// It's in these functions that the tutorial is laid out.
+	// Each stage has a number of steps, and each step has some arbitrary setup code (or not),
+	// some text that is displayed at the start (or not), and
+	// one or more criteria that, once met, will cause the tutorial to advance to the next step
 	private function setupStage0():Void
 	{
 		_stageStartFuncs.push(TutorialV3.stageStart0);
@@ -340,7 +342,6 @@ class TutorialManager
 				'These Cinebits give your movies a story!');
 
 
-
 		// Doc: “Match enough ORANGE gems to use this PLOT [ICON] Cinebit and add it to your film strip!
 		// SETUP: set playfield with orange gems, no cineboxes
 		// CRIT: plot card ready
@@ -349,15 +350,6 @@ class TutorialManager
 				[[TutorialManager.CRIT_READY_PLOT]],
 				TutorialV3.promptMatchForPlot);
 
-		/*
-		// EXAMPLE OF USING CRIT_SPECIFIC_CARD_READY
-		addTutorialStep(0,
-				[[TutorialManager.CRIT_SPECIFIC_CARD_READY + TutorialManager.FIRST_LEVEL_START_PLOT]],
-				TutorialV3.promptMatchForPlot);
-		*/
-
-		//addTutorialStep(0,
-		// 		[[TutorialManager.CRIT_FORCE_STOP]]);
 
 		// Doc: You’ve got enough gems to spend on your PLOT now! Drag it onto your film strip!
 		// SETUP: flash filmstrip slot
@@ -406,25 +398,9 @@ class TutorialManager
 				TutorialV3.showCardCosts_s0);
 
 		// 14
-		/*
-		addTutorialStep(0,
-				[[TutorialManager.CRIT_READY_LOCATION]],
-				null); // TutorialSteps.enableMatch);
-		*/
-
-		// 14
 		addTutorialStep(0,
 				[[TutorialManager.CRIT_ADD_LOCATION]],
 				TutorialV3.promptAddLocation);
-
-		// Doc: “I'm going to put 10 turns on the clock, (adds 5 cinebits) let's see how many Cinebits you can add to your movie before time runs out!”
-		// 16
-		/*
-		addTutorialStep(0,
-				[[TutorialManager.CRIT_ADD_ITEM]],
-				TutorialV3.addCards_s0,
-				'I\'m going to give you some more CineBits to work with');
-		*/
 
 		// [on adding another Cinebit to the film strip] Doc: “You’re getting the hang of it now!”
  		// 15
@@ -436,12 +412,6 @@ class TutorialManager
 		addTutorialStep(0,
 				[[TutorialManager.CRIT_WON_LEVEL, 0, TutorialStepCriteria.REL_EQUAL]]);
 
- 		/*
-		addTutorialStep(0,
-				[[TutorialManager.CRIT_FORCE_STOP]],
-				null,
-				'STOPPED, STAGE 0');
-		*/
 	}
 
 	private function setupStage1():Void
@@ -459,7 +429,6 @@ class TutorialManager
 				[[TutorialManager.CRIT_STATE, Globals.STATE_PLAY, TutorialStepCriteria.REL_EQUAL],
 				 [TutorialManager.CRIT_CURRENT_LEVEL, 1, TutorialStepCriteria.REL_EQUAL]]);
 
-
 		// Doc: “Match gems and create the best movie you can before you run out of turns”
 		addTutorialStep(1,
 				[[TutorialManager.CRIT_CLOSE_DOC]],
@@ -474,12 +443,6 @@ class TutorialManager
 		addTutorialStep(1,
 				[[TutorialManager.CRIT_WON_LEVEL, 1, TutorialStepCriteria.REL_EQUAL]]);
 
-		/*
- 		addTutorialStep(1,
- 				[[TutorialManager.CRIT_FORCE_STOP]],
- 				null,
- 				'STOPPED');
-		*/
 	}
 
 	private function setupStage2():Void
@@ -543,12 +506,6 @@ class TutorialManager
 		addTutorialStep(2,
 				[[TutorialManager.CRIT_WON_LEVEL, 2, TutorialStepCriteria.REL_EQUAL]]);
 
-		/*
-		addTutorialStep(2,
-				[[TutorialManager.CRIT_FORCE_STOP]],
-				null,
-				'END STAGE 2');
-		*/
 	}
 
 	private function setupStage3():Void
@@ -700,30 +657,6 @@ class TutorialManager
 		addTutorialStep(4,
 				[[TutorialManager.CRIT_WON_LEVEL, 4, TutorialStepCriteria.REL_EQUAL]]);
 
-		/*
-		// [MATCH 3 - DRAW BONUS CINEBIT INTO HAND] force next cinebit draw to be a bonus
-		addTutorialStep(4,
-				[[TutorialManager.CRIT_DRAW_CARD]]);
-
-		// Doc: “You found a BONUS [ICON] Cinebit! Amazing! These bonuses ALWAYS help your movie score more box office gold. Let’s look at it.”
-		addTutorialStep(4,
-				[[TutorialManager.CRIT_CARD_INFO_UP]],
-				TutorialV3.showDrawnSpecial);
-
-		// Doc: “Whenever you’ve created a great movie, grab these BONUS [ICON] Cinebits and add them to your movie to land more money!”
-		// set the timer to 10 turns
-		addTutorialStep(4,
-				[[TutorialManager.CRIT_CLOSE_DOC]],
-				TutorialV3.add10Turns,
-				'Whenever you’ve created a great movie, grab these BONUS Cinebits and add them to your movie to land more money!');
-		*/
-
-		/*
-		addTutorialStep(4,
-				[[TutorialManager.CRIT_FORCE_STOP]],
-				null,
-				'STAGE END 4');
-		*/
 	}
 
 	// explain FX system
@@ -774,12 +707,6 @@ class TutorialManager
 		addTutorialStep(5,
 				[[TutorialManager.CRIT_WON_LEVEL, 7, TutorialStepCriteria.REL_EQUAL]]);
 
-		/*
-		addTutorialStep(5,
-				[[TutorialManager.CRIT_FORCE_STOP]],
-				null,
-				'STAGE END 5');
-		*/
 	}
 
 	// force a pack buy, and explain card upgrading
@@ -836,7 +763,6 @@ class TutorialManager
 				[[TutorialManager.CRIT_UPGRADE_CONFIRM]],
 				TutorialV3.showUpgradeButton);
 
-
 		// 8
 		addTutorialStep(6,
 				[[TutorialManager.CRIT_CLOSED_INFO]]);
@@ -863,10 +789,6 @@ class TutorialManager
 				null,
 				'Explore! Experiment! Enjoy! You’ll discover the secrets of CineMagic as you create the greatest movies the cinema has ever seen!');
 
-		/*
-		addTutorialStep(6,
-				[[TutorialManager.CRIT_FORCE_STOP]]);
-		*/
 	}
 
 	// explain specials
@@ -941,13 +863,6 @@ class TutorialManager
 		addTutorialStep(9,
 				[[TutorialManager.CRIT_MATCH_GEM]],
 				TutorialV3.allowMatch);
-
-		/*
-		addTutorialStep(9,
-				[[TutorialManager.CRIT_FORCE_STOP]],
-				null,
-				'STAGE END 8');
-		*/
 	}
 
 	// explain genre mode
@@ -964,6 +879,8 @@ class TutorialManager
 
 
 	// used to allow various capabilities to be turned off during parts of the tutorial
+	// This is another case where there wasn't a clean way to generalize- we needed to be
+	// able to have totally arbitrary logic for each capability.
 	public function checkCapability(?cap:Int = -1):Bool
 	{
 		if (Globals.TUTORIAL_DISABLED) return true;
@@ -1303,8 +1220,6 @@ class TutorialManager
 
 	private function setTutorialStep(stage:Int, step:Int):Void
 	{
-		trace('SETTING TUTORIAL TO: ' + stage + ' ' + step + ' ' + _tutorialData.length);
-
 		if (stage <= _tutorialData.length)
 		{
 			if (step <= _tutorialData[stage].length)
@@ -1459,15 +1374,14 @@ class TutorialManager
 		}
 
 		_tutorialData[stage].push(new TutorialStepData(stage, _tutorialData[stage].length, crit, sFunc, sMsg, eFunc, eMsg, point));
-
-		// trace('ADDED STEP TO STAGE: ' + stage + ' CURRENT LENGTH: ' + _tutorialData[stage].length);
 	}
 
-	// will default to replacing the current value with the new one (which will default to -1)
+	// This is the main way that the tutorial advances. Calls to registerAction appear in various places
+	// in the game, each time the player does somthing that might trigger the completion of a tutorial step.
+	// This will default to replacing the current value with the new one (which will default to -1)
 	// also defaults to replacing the existing value with the one passed in
 	public function registerAction(criteria:Int, ?arg:Int = -1, ?action:Int = 2, removePause:Bool = false):Void
 	{
-		// if (criteria != CRIT_PAUSE_MILLIS) trace('REGISTERING ACTION ' + criteria);
 
 		if (_tutorialComplete) return;
 
@@ -1528,7 +1442,6 @@ class TutorialManager
 
 		if (_hintTimer >= HINT_WAIT_TIME)
 		{
-			// trace('SHOWING HINT');
 			_hintTimer = 0;
 		}
 	}

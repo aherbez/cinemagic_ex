@@ -39,7 +39,6 @@ import com.jamwix.utils.JamSprite;
 // struct to hold rasterized text and an accurate height 
 class PosterTextSprite extends Sprite
 {	
-	// public var txt:Sprite;
 	public var textHeight:Float;
 
 	public function new()
@@ -54,12 +53,8 @@ class Poster extends JamSprite
 	static private var DEFAULT_BACK_SRC:String = 'assets/graphics/ret/default_poster_back.jpg';
 	static private var OVERLAY_SRC:String = 'assets/graphics/ret/poster_overlay.png';
 	static private var CARD_ART_LOC:String = 'assets/graphics/cards/';
-	/*
-	static private var POSTER_TEMPLATE_STRINGS:Array<String> = [
-	'{"tagline": {"y": 13, "x": 61, "w": 634, "h": 100}, "numactors": 1, "actors": [{"x": 180, "h": 1594, "scale": 1.76, "flip": 1, "w": 621, "y": 179}, 0], "actnames": [{"y": 920, "x": 35, "w": 266, "h": 60}, 0], "title": {"y": 600, "x": 96, "w": 544, "h": 270}}',
-'{"tagline": {"y": 13, "x": 61, "w": 634, "h": 100}, "numactors": 2, "actors": [{"x": 153, "h": 1037, "scale": 1.144, "flip": 1, "w": 404, "y": 397}, {"x": 612, "h": 1039, "scale": 1.147, "flip": 0, "w": 405, "y": 397}], "actnames": [{"y": 920, "x": 35, "w": 266, "h": 60}, {"y": 920, "x": 445, "w": 266, "h": 60}], "title": {"y": 600, "x": 96, "w": 544, "h": 270}}'];
-	*/
 
+	// Default positioning for characters. This can be overriden by some plots.
 	static private var POSTER_TEMPLATE_STRINGS:Array<String> = [
 	'{"tagline": {"y": 13, "x": 61, "w": 634, "h": 100}, "numactors": 1, "actors": [{"x": 180, "scale": 1.76, "flip": 1, "y": 179}, 0], "actnames": [{"y": 920, "x": 35, "w": 266, "h": 60}, 0], "title": {"y": 600, "x": 96, "w": 544, "h": 270}}',
 '{"tagline": {"y": 13, "x": 61, "w": 634, "h": 100}, "numactors": 2, "actors": [{"x": 153, "scale": 1.144, "flip": 1, "y": 397}, {"x": 612, "scale": 1.147, "flip": 0, "y": 397}], "actnames": [{"y": 920, "x": 35, "w": 266, "h": 60}, {"y": 920, "x": 445, "w": 266, "h": 60}], "title": {"y": 600, "x": 96, "w": 544, "h": 270}}'];
@@ -152,9 +147,7 @@ class Poster extends JamSprite
 		var font:Font = Assets.getFont('assets/futura2.ttf');
 		_tf = new TextFormat(font.fontName, 80, 0x000000);
 		_tf.align = TextFormatAlign.CENTER;
-		
-		// _tf = FontManager.getTextFormat(FontManager.FUTURA, 100, 0x000000);
-		
+				
 		reset();
 		
 		headToPlace = 0;		
@@ -179,19 +172,6 @@ class Poster extends JamSprite
 
 		var templateIndex:Int = (pd.people.length > 1) ? 1 : 0;
 		
-		/*
-		if (pd.people.length > 1)
-		{
-			// two characters
-			_template = _posterTemplates[1];
-		}
-		else
-		{
-			// one character
-			_template = _posterTemplates[0];
-		}
-		*/
-		
 		_titlePos = _posterTemplates[templateIndex].title;
 		_taglinePos = _posterTemplates[templateIndex].tagline;
 		for (i in 0...2)
@@ -199,7 +179,6 @@ class Poster extends JamSprite
 			_actorNamePos[i] = _posterTemplates[templateIndex].actnames[i];
 			_actorPos[i] = _posterTemplates[templateIndex].actors[i];
 		}
-		
 		
 		var cd:CardData = pd.getMainPlot();
 		if (cd != null)
@@ -213,7 +192,6 @@ class Poster extends JamSprite
 					if (templateData.people.a2 != null &&
 						templateData.people.b2 != null)	
 					{
-						// _template = new Array<Dynamic>();
 						_actorPos[0] = templateData.people.a2;
 						_actorPos[1] = templateData.people.b2;
 
@@ -234,7 +212,6 @@ class Poster extends JamSprite
 				{
 					if (templateData.people.a1 != null)	
 					{
-						// _template = templateData.people.a1;
 						_actorPos[0] = templateData.people.a1;
 					}
 				}
@@ -249,6 +226,7 @@ class Poster extends JamSprite
 			_mainGenre = genres[0];
 		}
 		
+		// Add plots and locations
 		for (i in 0...pd.cardsByType.length)
 		{
 			if (i != CardData.TYPE_ACTOR && i != CardData.TYPE_CHARACTER)
@@ -260,6 +238,7 @@ class Poster extends JamSprite
 			}
 		}
 
+		// Add actor/character combos
 		if (pd.people.length == 1)
 		{
 			addPerson(pd.people[0], 0, 0);
@@ -271,6 +250,7 @@ class Poster extends JamSprite
 		}
 		else
 		{
+			// we never actually allowed more than 2 people, but we might have eventually
 			for (i in 0...pd.people.length)
 			{
 				addPerson(pd.people[i], i);
@@ -314,7 +294,6 @@ class Poster extends JamSprite
 	{
 		if (num > 1) return;
 
-		// removeChild(_characters);
 		_characters.mask = null;
 		_characters.removeChild(_characterMaskSprite);
 
@@ -330,6 +309,7 @@ class Poster extends JamSprite
 		if (pd.actorID != -1)
 			actorCd = GameRegistry.cards.getCardByID(pd.actorID);
 		
+		// try to get the art from our cache, if we can
 		var js:JamSprite = null;
 		if (characterCd != null && actorCd != null)
 		{
@@ -389,8 +369,6 @@ class Poster extends JamSprite
 			// add a mask, if information for it exists
 			if (_actorPos[num].mask != null && _actorPos[num].mask == 1)
 			{
-				trace('ADDING MASK ' + _actorPos[num]);
-
 				if (this._characterMaskSrc == null)
 				{
 					if (_pd != null)
@@ -408,23 +386,16 @@ class Poster extends JamSprite
 				#else
 						characterMaskBMD = new BitmapData(750, 1000, true, 0x00000000);
 				#end					
-				// _charactersMaskBMD = new BitmapData(750, 1000, true);
 				var characterMaskSprite:Sprite = new Sprite();
 
 				var r:Rectangle = new Rectangle(_actorPos[num].mcx, 0, _actorPos[num].mw, _actorPos[num].mh);
 				var p:Point = new Point(_actorPos[num].mx, _actorPos[num].my);
 
-				// p.x -= cs.x;
-				// p.y -= cs.y;
 				characterMaskBMD.copyPixels(_characterMaskSrc, r, p, _characterMaskSrc);
 				characterMask = new Bitmap(characterMaskBMD);
 
 				_characterMaskSprite.addChild(characterMask);
 			}	
-			else
-			{
-				// trace('NO MASK DATA');
-			}
 			
 		}
 		catch (error:Dynamic)
@@ -440,19 +411,6 @@ class Poster extends JamSprite
 		_characters.addChild(js);
 		_characterSprites.push(js);
 
-		/*
-
-		var testSpr:Sprite = new Sprite();
-		testSpr.graphics.beginFill(0xFFFFFF, 1);
-	 	testSpr.graphics.drawRect(0,200, 750, 300);
-		testSpr.graphics.drawRect(0, 600, 750, 100);
-		*/
-		// _characters.mask = testSpr;
-		// _characters.addChild(testSpr);	
-
-		// addChild(_characters);
-
-		// var tempMask:Sprite = new Sprite();
 		var tempBMD:BitmapData; // = new BitmapData(750, 1000, true);
 		
 		#if neko		
@@ -465,9 +423,6 @@ class Poster extends JamSprite
 		var tempBM:Bitmap = new Bitmap(tempBMD);
 		_characters.addChild(tempBM);
 		_characters.mask = tempBM;
-
-		// _characters.addChild(_characterMaskSprite);
-		// _characters.mask = _characterMaskSprite;
 		
 	}
 	
@@ -475,7 +430,6 @@ class Poster extends JamSprite
 	{		
 		var bmd:BitmapData = GameRegistry.cards.getCachedArtBmd(cd.ID);
 
-		// trace('ABOUT TO ADD: ' + cd.cardName);
 		if (cd.cardType == CardData.TYPE_LOCATION)
 		{
 			if (_background.numChildren > 0)
@@ -487,33 +441,16 @@ class Poster extends JamSprite
 			_location.height = POSTER_HEIGHT;
 			_background.addChild(_location);
 		}
-		else if (cd.cardType == CardData.TYPE_CHARACTER)
+		else if (cd.cardType == CardData.TYPE_CHARACTER || 
+			cd.cardType == CardType.TYPE_ACTOR)
 		{
+			// characters and actors are special, and are handled elsewhere
 			return;
-			/*
-			var c:CharacterSprite = new CharacterSprite(cd, _characterSprites.length);
-			_characters.addChild(c);
-
-			if (_characterSprites.length % 2 == 0)
-			{
-				c.x = Poster.CHARACTER_POS[0][0];
-				c.y = Poster.CHARACTER_POS[0][1];	
-			}
-			else
-			{									
-				c.x = Poster.CHARACTER_POS[1][0];
-				c.y = Poster.CHARACTER_POS[1][1];			
-				c.scaleX = -1;
-			}
-			_characterSprites.push(c);	
-			*/
 		}
 		else if (cd.cardType == CardData.TYPE_PLOT)
 		{
 			// add the front and back images, if they exist
 			var data:Dynamic = Json.parse(cd.effects);
-			// trace('PLOT DATA');
-			// trace(data);
 			
 			// only add layers for the A plot
 			if (_plotAdded)
@@ -524,9 +461,7 @@ class Poster extends JamSprite
 			var layers:Int = Std.parseInt(data.lyr);
 			
 			if (layers & 2 != 0)
-			{	
-				// trace('ADDING FRONT IMAGE');
-			
+			{				
 				// front layer
 				var img:ImgSprite = new ImgSprite(CARD_ART_LOC + 'plot/' + cd.imgSrc + '_front.png');
 				_plotFront.addChild(img);
@@ -534,46 +469,18 @@ class Poster extends JamSprite
 			}
 			if (layers & 4 != 0)
 			{
-				// trace('ADDING BACK IMAGE');
-				// trace(cd.cardName + ', ' + cd.imgSrc);
-				// back layer
 				var img:ImgSprite = new ImgSprite(CARD_ART_LOC + 'plot/' + cd.imgSrc + '_back.png');
 				_plotBack.addChild(img);	
-				// trace('ADDED BACK IMAGE');
 			}
 			
 			_plotAdded = true;
-		}
-		else if (cd.cardType == CardData.TYPE_ACTOR)
-		{	
-			return;
-			/*
-			if (_characterSprites.length > headToPlace)
-			{
-				_characterSprites[headToPlace].setActor(cd);			
-			
-				headToPlace = (headToPlace + 1) % 2;
-			}
-			*/
 		}
 		else
 		{
 			trace('NON-IMPLEMENTED TYPE FOR: ' + cd.cardName);
 		}
-		// trace('ADDED: ' + cd.cardName);
 	}
 	
-	
-	public function addCharacter(cd:CardData):Void
-	{
-		
-	}
-	
-	private function parseEffects():Void
-	{
-	
-	}
-
 	private function addMainTitle():Void
 	{
 		return;
@@ -583,7 +490,6 @@ class Poster extends JamSprite
 		title.defaultTextFormat = _tf;
 		title.multiline = true;
 		title.wordWrap = true;
-		// title.autoSize = TextFieldAutoSize.CENTER;
 		
 		// add some white around the edge for readibility
 		title.filters = [new GlowFilter(0xFFFFFF, TITLE_GLOW_ALPHA, 5, 5, 10)];
@@ -595,17 +501,9 @@ class Poster extends JamSprite
 
 	public function setTitle(newTitle:String):Void
 	{
-		/*
-		var titleSpr:Sprite = titleFromGenre(newTitle.toUpperCase(), 100, _template.title.w, 350);
-	
-		titleSpr.x = _template.title.x;
-		titleSpr.y = (_template.title.y + _template.title.h) - titleSpr.height; // might need textheight
-		*/
-		// var titleSpr:Sprite = titleFromGenre(newTitle.toUpperCase(), 100, _titlePos.w, 350);
 		var titleSpr:PosterTextSprite = titleFromGenre(newTitle.toUpperCase(), 100, _titlePos.w, 350);
 	
 		titleSpr.x = _titlePos.x;
-		// titleSpr.y = (_titlePos.y + _titlePos.h) - titleSpr.height; // might need textheight
 		titleSpr.y = (_titlePos.y + _titlePos.h) - titleSpr.textHeight;
 		
 		_titles.addChild(titleSpr);
@@ -743,21 +641,13 @@ class Poster extends JamSprite
 			txtBMD.rect, 
 			new Point(0, 0), 
 			BitmapDataChannel.BLUE, BitmapDataChannel.ALPHA);
-		
-		/*
-		var txtSpr:Sprite = new Sprite();
-		txtSpr.addChild(new Bitmap(gradBMD));
-		txtSpr.filters = [new DropShadowFilter()];
-		*/
-		
+				
 		var posterTextSprite:PosterTextSprite = new PosterTextSprite();
 		posterTextSprite.addChild(new Bitmap(gradBMD));
 		posterTextSprite.filters = [new DropShadowFilter()];
 		posterTextSprite.textHeight = titleTxt.textHeight;
-		
-		
+				
 		return posterTextSprite;
-		// return txtSpr;
 	}
 
 	private function createAdventureTitle(
@@ -805,15 +695,7 @@ class Poster extends JamSprite
 			txtBMD.rect, 
 			new Point(0, 0), 
 			BitmapDataChannel.BLUE, BitmapDataChannel.ALPHA);
-		
-		/*	
-		var txtSpr:Sprite = new Sprite();
-		txtSpr.addChild(new Bitmap(gradBMD));
-		txtSpr.filters = [new GlowFilter(0x000000, TITLE_GLOW_ALPHA, 2, 2, 10)];
-
-		return txtSpr;
-		*/
-		
+				
 		var posterTextSpr:PosterTextSprite = new PosterTextSprite();
 		posterTextSpr.addChild(new Bitmap(gradBMD));
 		posterTextSpr.filters = [new GlowFilter(0x000000, TITLE_GLOW_ALPHA, 2, 2, 10)];
@@ -840,8 +722,6 @@ class Poster extends JamSprite
 
 		titleTxt.textColor = 0x0000FF;
 		var colors = [0xFFC000, 0xF554FF];
-
-		// var txtSpr:Sprite = new Sprite();
 		
 		var posterTxtSpr:PosterTextSprite = new PosterTextSprite();
 
@@ -880,7 +760,6 @@ class Poster extends JamSprite
 				new Point(0, 0), 
 				BitmapDataChannel.BLUE, BitmapDataChannel.ALPHA);
 			
-			// txtSpr.addChild(new Bitmap(gradBMD));
 			posterTxtSpr.addChild(new Bitmap(gradBMD));
 		}
 		// if we're just one line
@@ -895,21 +774,15 @@ class Poster extends JamSprite
 				'<font color="#F554FF">' + ' ' + words.join(' ') + '</font>' + ' ' +
 				'<font color="#FFC000">' + lastWord + '</font>';
 
-			// txtSpr.addChild(titleTxt);
 			posterTxtSpr.addChild(titleTxt);
 		}
 
 		posterTxtSpr.filters = [new DropShadowFilter()];
 		posterTxtSpr.textHeight = titleTxt.textHeight;
 		return posterTxtSpr;
-
-		/*
-		txtSpr.filters = [new DropShadowFilter()];
-
-		return txtSpr;
-		*/
 	}
 
+	// We render text differently depending on the genre of movie
 	private function titleFromGenre(newTitle:String, fs:Int, w:Int, h:Int):PosterTextSprite
 	{
 		var posterTextSpr:PosterTextSprite;
@@ -951,26 +824,12 @@ class Poster extends JamSprite
 						FontManager.getTextFormatByGenre(_mainGenre, fs, 0xFF0000);
 					titleTxt.filters = [
 						new GlowFilter(0xFFFFFF, TITLE_GLOW_ALPHA, 6, 6, 10)];
-					/*
-					titleTxt.width = w;
-					titleTxt.height = h;
-					titleTxt.text = newTitle;
-					JWUtils.autoSizeFont(titleTxt);
-					txtSpr.addChild(titleTxt);
-					*/
 				}
 				case CardData.GENRE_DRAMA:
 				{
 					titleTxt.defaultTextFormat = 
 						FontManager.getTextFormatByGenre(_mainGenre, fs, 0xFFFFFF);
 					titleTxt.filters = [new DropShadowFilter()];
-					/*
-					titleTxt.width = w;
-					titleTxt.height = h;
-					titleTxt.text = newTitle;
-					JWUtils.autoSizeFont(titleTxt);
-					txtSpr.addChild(titleTxt);
-					*/
 				}
 				case CardData.GENRE_HORROR:
 				{
@@ -979,13 +838,6 @@ class Poster extends JamSprite
 						_mainGenre, fs, 0xD20000);
 					titleTxt.filters = [
 						new GlowFilter(0x000000, TITLE_GLOW_ALPHA, 4, 4, 10)];
-					/*
-					titleTxt.width = w;
-					titleTxt.height = h;
-					titleTxt.text = newTitle;
-					JWUtils.autoSizeFont(titleTxt);
-					txtSpr.addChild(titleTxt);
-					*/
 				}
 
 				case CardData.GENRE_SCIFI:
@@ -994,13 +846,6 @@ class Poster extends JamSprite
 						FontManager.getTextFormatByGenre(_mainGenre, fs, 0xFFFFFF);
 					titleTxt.filters = [
 						new GlowFilter(0x0F133A, TITLE_GLOW_ALPHA, 2, 2, 10)];
-					/*
-					titleTxt.width = w;
-					titleTxt.height = h;
-					titleTxt.text = newTitle;
-					JWUtils.autoSizeFont(titleTxt);
-					txtSpr.addChild(titleTxt);
-					*/
 				}
 				case CardData.GENRE_THRILLER:
 				{
@@ -1008,14 +853,6 @@ class Poster extends JamSprite
 						FontManager.getTextFormatByGenre(_mainGenre, fs, 0x000000);
 					titleTxt.filters = [
 						new GlowFilter(0xD34A00, TITLE_GLOW_ALPHA, 4, 4, 10)];
-					
-					/*
-					titleTxt.width = w;
-					titleTxt.height = h;
-					titleTxt.text = newTitle;
-					JWUtils.autoSizeFont(titleTxt);
-					txtSpr.addChild(titleTxt);
-					*/
 				}
 				default:
 				{
@@ -1023,13 +860,6 @@ class Poster extends JamSprite
 						FontManager.getTextFormat(FontManager.FUTURA, fs, 0x000000);
 					titleTxt.filters = [
 						new GlowFilter(0xFFFFFF, TITLE_GLOW_ALPHA, 1, 1, 10)];
-					/*
-					titleTxt.width = w;
-					titleTxt.height = h;
-					titleTxt.text = newTitle;
-					JWUtils.autoSizeFont(titleTxt);
-					txtSpr.addChild(titleTxt);
-					*/
 				}
 			}
 			
@@ -1037,20 +867,15 @@ class Poster extends JamSprite
 			titleTxt.height = h;
 			titleTxt.text = newTitle;
 			JWUtils.autoSizeFont(titleTxt);
-			// txtSpr.addChild(titleTxt);
 			posterTextSpr.addChild(titleTxt);
 			posterTextSpr.textHeight = titleTxt.textHeight;
 		}
 
-		// return txtSpr;
 		return posterTextSpr;
 	}
 	
 	public function setTagline(s:String):Void
 	{
-		// trace('TAGLINE: ' + s);
-		
-		// var tagline:Sprite = titleFromGenre(s.toUpperCase(), 30, _template.tagline.w, 400);
 		var tagline:PosterTextSprite = titleFromGenre(s.toUpperCase(), 30, _taglinePos.w, 400);
 		tagline.x = _taglinePos.x; // _template.tagline.x;
 		tagline.y = _taglinePos.y; // _template.tagline.y;
@@ -1064,7 +889,6 @@ class Poster extends JamSprite
 		_titleSprites 	= new Array<TextField>();
 		_background 	= new Sprite();
 		_plotBack 		= new Sprite();
-		// _actors 		= new Sprite();
 		_characters 	= new Sprite();
 		_characterMaskSprite = new Sprite();
 		_extras 		= new Sprite();
@@ -1073,14 +897,12 @@ class Poster extends JamSprite
 		
 		addChild(_background);
 		addChild(_plotBack);
-		// addChild(_actors);
 		addChild(_characters);
 		addChild(_plotFront);
 		addChild(_extras); 
 		addChild(_titles);
 
 		_characters.addChild(_characterMaskSprite);
-		// _characters.mask = _characterMaskSprite;
 		
 		addMainTitle();
 		

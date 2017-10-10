@@ -23,8 +23,8 @@ class PosterData
 	static private var TEXT_TAGLINE:Int = 2;
 
 	// PLOT ACTOR LOCATION CHARACTER SPECIAL
+	// This is the maximum number of each type of card that can exist in a movie
 	static public var MAX_CARDS:Array<Int> = [2, 2, 1, 2, 100];
-	// static public var MAX_CARDS:Array<Int> = [20,20,20,20,0];
 
 	static public var MAX_PEOPLE:Int = 2;
 
@@ -39,6 +39,7 @@ class PosterData
 	// comedy horror adventure thriller action sci-fi musical drama romance
 	// static public var GENRE_NAMES = ['comedy','horror', 'adventure', 'thriller', 'action', 'scifi', 'musical', 'drama', 'romance'];
 
+	// If we can't generate a title, we pick one of these
 	static private var FRENCH_TITLES = [
 		"Les Bonnes Femmes",
 		"Les Cousins Dangereux",
@@ -90,6 +91,7 @@ class PosterData
 	{
 		cards = new Array<Int>();
 
+		// Array to quickly lookup the data for each card type
 		cardsByType = new Array<Array<Int>>();
 		cardsByType[CardData.TYPE_ACTOR] = new Array<Int>();
 		cardsByType[CardData.TYPE_CHARACTER] = new Array<Int>();
@@ -144,9 +146,6 @@ class PosterData
 		clear();
 		var data:Dynamic = Json.parse(json);
 
-		// trace('INIT TO: ');
-		// trace(data);
-
 		var cardsIn:Array<Int> = Json.parse(data.cards);
 		for (i in 0...cardsIn.length)
 		{
@@ -170,24 +169,6 @@ class PosterData
 				}
 			}
 		}
-
-		/*
-		// TODO: reenable this if/when caching is resolved for randomized genders
-		// commenting this out for now
-		if (data.genders != null)
-		{
-			// trace('setting genders from serialized data');
-			var genders:Array<Int> = Json.parse(data.genders);
-			if (genders != null)
-			{
-				_peopleGenders = new Array<Int>();
-				for (i in 0...genders.length)
-				{
-					_peopleGenders[i] = genders[i];
-				}
-			}
-		}
-		*/
 
 		moneyMade = data.moneyMade;
 		_title = data.title;
@@ -282,7 +263,6 @@ class PosterData
 			cd = GameRegistry.cards.getCardByID(cardsByType[CardData.TYPE_PLOT][i]);
 
 			leveledGenres = cd.getGenres();
-			// for (j in 0...cd.genres.length)
 			for (j in 0...leveledGenres.length)
 			{
 				plotData.genres[j] += leveledGenres[j];
@@ -392,11 +372,8 @@ class PosterData
 		var secIdx = max == sec ? genres.indexOf(sec, maxIdx + 1) : genres.indexOf(sec);
 
 		var retGenres = [maxIdx];
-		//console.log("GENRES: " + genres);
-		//console.log(GENRE_NAMES[maxIdx] + ": " + max);
 		if ((max - sec) < GENRE_THRESHOLD || max < GENRE_WEAK) {
 			retGenres.push(secIdx);
-			//console.log(GENRE_NAMES[secIdx] + ": " + sec);
 		}
 
 		return retGenres;
@@ -471,8 +448,6 @@ class PosterData
 		data.moneySpent = 0;
 
 		var s:String = Json.stringify(data);
-		// trace('POSTER DATA SERIALIZEED TO: ');
-		// trace(s);
 
 		return s;
 	}
@@ -493,23 +468,7 @@ class PosterData
 
 			bonus *= (1 + cd.getSpecialsBonus(currGenres));
 
-			/*
-			var fx:Dynamic = Json.parse(cd.effects);
-
-			var effectsAr:Array<Dynamic> = fx.playfx;
-
-			if (effectsAr != null && effectsAr.length > 0)
-			{
-				// trace('fx.playfx[0]: ' + fx.playfx[0]);
-				// trace('fx.playfx[0].bon: ' + fx.playfx[0].bon);
-				// var bonus:Float = Std.parseFloat(Std.string(fx.playfx[0].bon));
-				var cardBonus:Float = fx.playfx[0].bon;
-				bonus += cardBonus;
-			}
-			*/
 		}
-
-		// trace('TOTAL BONUS: ' + mult);
 
 		// subtract the initial 1 to provide the total percent increase
 		return (bonus - 1);
@@ -525,18 +484,17 @@ class PosterData
 		}
 	}
 
+	// Removes a card from the movie. This is necessary, since some levels
+	// ("bomb" levels) will cause elements to be removed from the player's movie.
 	// returns true if the card was removed, false if it wasn't found
 	public function removeCard(cd:CardData):Bool
 	{
-		// trace('REMOVING CARD: ' + cd.cardName);
-
 		var foundInCards:Bool = false;
 
 		for (i in 0...cards.length)
 		{
 			if (cards[i] == cd.ID)
 			{
-				// trace('removed: ' + cards.splice(i, 1));
 				cards.splice(i, 1);
 				foundInCards = true;
 				break;
@@ -545,7 +503,6 @@ class PosterData
 
 		var foundInSubarray:Bool = false;
 
-		// TODO: remove card entry from specific sub-array
 		var searchArray:Array<Int> = cardsByType[cd.cardType];
 		for (i in 0...searchArray.length)
 		{
@@ -564,7 +521,6 @@ class PosterData
 		{
 			for (i in 0...people.length)
 			{
-				// if (people[i] != null) people[i].debugPrint();
 				if (people[i] != null && people[i].actorID == cd.ID)
 				{
 					people[i].setActor(-1);
@@ -583,24 +539,12 @@ class PosterData
 					people.splice(i,1);
 				}
 			}
-
-
 		}
 
-		// trace(cd.cardName + ' inCards: ' + foundInCards + ' inSub: ' + foundInSubarray + ' actor: ' + foundAsActor + ' char: ' + foundAsCharacter);
-
-		// this should never happen
-		/*
-		if (foundInCards != foundInSubarray)
-		{
-			trace('ERROR: card ' + cd.cardName + ' in cards but not subarray or vice-versa');
-		}
-		*/
 
 		_peopleDirty = true;
 		updatePeople();
 
-		// debugPrintContents();
 		generateSynopsis(true, true, true);
 		generateTitle(true);
 		generateTagline(true);
@@ -643,7 +587,6 @@ class PosterData
 			if (cards[i] == cardId)
 			{
 				cards.splice(i, 1);
-				// trace('REMOVED: ' + cardId + ' FROM cards');
 			}
 		}
 
@@ -655,7 +598,6 @@ class PosterData
 				if (cardsByType[j][i] == cardId)
 				{
 					cardsByType[j].splice(i, 1);
-					// trace('REMOVED ' + cardId + ' FROM sub-array ' + j);
 				}
 			}
 		}
@@ -672,7 +614,6 @@ class PosterData
 		for (i in 0...cards.length)
 		{
 			cd = GameRegistry.cards.getCardByID(cards[i]);
-			// trace(cd.cardName);
 
 			if (cd.cardType != CardData.TYPE_LOCATION)
 			{
@@ -682,7 +623,6 @@ class PosterData
 
 		var rmPos:Int = Std.random(nonLocCards.length);
 		var rmId:Int = nonLocCards[rmPos];
-		// removeCardById(rmId);
 
 		cd = GameRegistry.cards.getCardByID(rmId);
 		removeCard(cd);
@@ -698,7 +638,6 @@ class PosterData
 
 		var rmPos:Int = Std.random(cards.length);
 		var rmId:Int = cards[rmPos];
-		// removeCardById(rmId);
 
 		var cd:CardData = GameRegistry.cards.getCardByID(rmId);
 		removeCard(cd);
@@ -728,7 +667,6 @@ class PosterData
 	public function addCard(cid:Int, ?index:Int = -1, ?generateText:Bool = true):Void
 	{
 		var cd:CardData = GameRegistry.cards.getCardByID(cid);
-		// trace('ADDING ' + cd.cardName);
 
 		if (cd.cardType == CardData.TYPE_ACTOR || cd.cardType == CardData.TYPE_CHARACTER)
 		{
@@ -748,14 +686,10 @@ class PosterData
 			generateSynopsis(true, true, true);
 			generateTitle(true);
 		}
-
-		// debugPrintContents();
-		// trace(_synopsisRaw);
 	}
 
 	public function addPerson(cardsToAdd:Array<Int>):Void
 	{
-		// if (actorID == -1 && characterID == -1) return;
 		if (cardsToAdd.length < 1) return;
 
 		var p:PersonData = new PersonData();
@@ -874,12 +808,6 @@ class PosterData
 		generateTitle();
 	}
 
-	// combines cards, currently just actor/characters
-	public function combineCard(cidA:Int, cidB:Int):Void
-	{
-
-	}
-
 	private function isVowel(c:String):Bool
 	{
 		if (c == 'a') return true;
@@ -892,7 +820,6 @@ class PosterData
 
 	private function updatePeople():Void
 	{
-		// trace('UPDATE PEOPLE');
 		var actor:CardData = null;
 		var character:CardData = null;
 
@@ -964,16 +891,12 @@ class PosterData
 			}
 		}
 
-		// trace(_peopleGenders);
-		// trace('UPDATING PEOPLE');
-		// debugPrintContents();
 		_peopleDirty = false;
 	}
 
 	// process a single replaceable clause
 	private function parseClause(input:String, ?type:Int = 1):String
 	{
-		// trace('PARSE CLAUSE ' + input);
 		var parts:Array<String> = input.split('|');
 
 		var s:String = '';
@@ -982,7 +905,7 @@ class PosterData
 
 		switch (parts[0])
 		{
-
+			// First person (character and/or actor) added to the movie
 			case 'pA':
 			{
 				if (_peopleStrings[0] != null)
@@ -1009,7 +932,8 @@ class PosterData
 					if (parts[1] != null) s = parts[1];
 				}
 			}
-			case 'pB':
+			// Second person (character and/or actor) added to the movie 
+			case 'pB':	
 			{
 				if (_peopleStrings[1] != null)
 				{
@@ -1035,6 +959,7 @@ class PosterData
 					if (parts[1] != null) s = parts[1];
 				}
 			}
+			// Clause based on gender of person A
 			case 'gA':
 			{
 				if (_peopleGenders[0] == CardData.GENDER_FEMALE)
@@ -1046,6 +971,7 @@ class PosterData
 					if (parts[1] != null) s = parts[1];
 				}
 			}
+			// Clause base on gendr of person B
 			case 'gB':
 			{
 				if (_peopleGenders[1] == CardData.GENDER_FEMALE)
@@ -1058,6 +984,7 @@ class PosterData
 				}
 
 			}
+			// Last name of actor A
 			case 'nA':
 			{
 				// last name of actor A, if given
@@ -1071,6 +998,7 @@ class PosterData
 					if (parts[1] != null) s = parts[1];
 				}
 			}
+			// Last name of actor B
 			case 'nB':
 			{
 				// last name of actor B, if given
@@ -1084,6 +1012,7 @@ class PosterData
 					if (parts[1] != null) s = parts[1];
 				}
 			}
+			// Location
 			case 'L':
 			{
 				if (cardsByType[CardData.TYPE_LOCATION].length > 0)
@@ -1098,10 +1027,10 @@ class PosterData
 
 			}
 		}
-		// trace(s);
 		return s;
 	}
 
+	// Used to create plot synopses and taglines based on current cards.
 	// process an entire string with multiple, possibly nested clauses
 	// default to processing text as a plot synopsis
 	private function processClauseString(s:String, ?type:Int = 1):String
@@ -1222,14 +1151,6 @@ class PosterData
 									 ?force:Bool = false):String
 	{
 
-		// if we already have a synopsis, return that
-		/*
-		if (_synopsisRaw != '' && _genresRaw != '' && !force && !_peopleDirty)
-		{
-			return getSynopsis();
-		}
-		*/
-		// trace('GENERATING SYNOPSIS');
 		var plotString:String = '';
 		var plotDat:CardData;
 		var synopsis:String = '';
@@ -1249,8 +1170,6 @@ class PosterData
 			return DEFAULT_SYNOP;
 		}
 
-
-		// debugPrintContents();
 		var ploti:Int = 0;
 		for (i in 0...cardsByType[CardData.TYPE_PLOT].length)
 		{
@@ -1322,11 +1241,12 @@ class PosterData
 		synopsis = synopsis.substr(1);
 		synopsis = firstChar + synopsis;
 
+		// After the plot has been summarized, add text to indicate the
+		// current genre(s) of the movie.
+		
 		// TODO: need to move away from hard-coded text
 		synopsis += ' in this ';
 		var genres:Array<Int> = findGenres();
-
-		// if (upperCase) synopsis = synopsis.toUpperCase();
 
 		var genresStr:String = '';
 		if (colorText)
